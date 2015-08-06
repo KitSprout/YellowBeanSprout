@@ -26,6 +26,8 @@ Hardware
 
 Software
 ========
+* [BSY_PeripheralHAL_GPIO](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_GPIO) ... GPIO 輸入輸出範例
+* [BSY_PeripheralHAL_UART](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_UART) ... UART 傳輸範例
 
 Related Documents
 ========
