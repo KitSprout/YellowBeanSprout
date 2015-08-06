@@ -2,7 +2,7 @@
 ========
 * Author  : [Hom](https://github.com/Hom-Wang)
 * Version : v1.0 (TEST)
-* Update  : 2015/08/06
+* Update  : 2015/08/07
 
 Description
 ========
@@ -26,6 +26,7 @@ Hardware
 
 Software
 ========
+* [BSY_PeripheralHAL_EXTI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_EXTI) ... EXIT 外部中斷範例
 * [BSY_PeripheralHAL_GPIO](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_GPIO) ... GPIO 輸入輸出範例
 * [BSY_PeripheralHAL_UART](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_UART) ... UART 傳輸範例
 
