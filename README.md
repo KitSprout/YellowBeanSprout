@@ -2,7 +2,7 @@
 ========
 * Author  : [Hom](https://github.com/Hom-Wang)
 * Version : v1.0 (TEST)
-* Update  : 2015/08/07
+* Update  : 2015/08/11
 
 Description
 ========
@@ -26,6 +26,9 @@ Hardware
 
 Software
 ========
+* [BSY_ModuleHAL_MPU9250-SPI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_MPU9250-SPI) ... MPU9250 SPI 讀取範例
+* [BSY_ModuleHAL_MPU9255-SPI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_MPU9255-SPI) ... MPU9255 SPI 讀取範例
+* [BSY_ModuleHAL_TFT2.2](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_TFT2.2) ... [TFT2.2-inch](https://github.com/KitSprout/TFT_2.2-inch) 範例
 * [BSY_PeripheralHAL_EXTI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_EXTI) ... EXIT 外部中斷範例
 * [BSY_PeripheralHAL_GPIO](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_GPIO) ... GPIO 輸入輸出範例
 * [BSY_PeripheralHAL_UART](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_UART) ... UART 傳輸範例
