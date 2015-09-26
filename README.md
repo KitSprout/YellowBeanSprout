@@ -1,8 +1,8 @@
 [YellowBeanSprout](https://github.com/KitSprout/YellowBeanSprout)
 ========
 * Author  : [Hom](https://github.com/Hom-Wang)
-* Version : v1.0 (TEST)
-* Update  : 2015/09/20
+* Version : v1.2
+* Update  : 2015/09/26
 
 Description
 ========
@@ -22,7 +22,7 @@ Hardware
 ========
 * 控制器　 : [STM32F446R](http://www.st.com/web/catalog/mmc/FM141/SC1169/SS1577/LN1875) 64Pin 180MHz
 * PCB 尺寸 : 25.4 * 43.18mm
-* 設計軟體 [Altium Designer 15](http://www.altium.com/en/products/altium-designer) ( PcbLib use AD [PcbLib v1.5](https://github.com/KitSprout/AltiumDesigner_PcbLibrary/releases/tag/v1.5) )  
+* 設計軟體 [Altium Designer 15](http://www.altium.com/en/products/altium-designer) ( PcbLib use AD [PcbLib v1.6](https://github.com/KitSprout/AltiumDesigner_PcbLibrary/releases/tag/v1.6) )  
 
 Software
 ========
@@ -47,6 +47,7 @@ Config
 
 Schematic
 ========
+<img src="https://lh3.googleusercontent.com/-S5mc7cZ6Evw/VgZMs0_GSDI/AAAAAAAAOBY/YIZz0TqZDYU/s1200-Ic42/Sch_YellowBeanSprout_v1.2.png" />
 
 Get it
 ========
