@@ -2,7 +2,7 @@
 ========
 * Author  : [Hom](https://github.com/Hom-Wang)
 * Version : v1.2
-* Update  : 2015/09/30
+* Update  : 2015/10/02
 
 Description
 ========
@@ -54,3 +54,4 @@ Schematic
 
 Get it
 ========
+[露天拍賣 Ruten in Taiwan](http://goods.ruten.com.tw/item/show?21540770783936)
