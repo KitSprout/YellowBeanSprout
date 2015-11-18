@@ -6,99 +6,99 @@
 /*====================================================================================================*
 **函數 : UART_SendByte
 **功能 : Send Byte
-**輸入 : USARTx, *SendData
+**輸入 : USARTx, *sendData
 **輸出 : None
-**使用 : UART_SendByte(USART1, 'A');
+**使用 : UART_SendByte(USARTx, 'A');
 **====================================================================================================*/
 /*====================================================================================================*/
-void UART_SendByte( USART_TypeDef *USARTx, uint8_t *SendData )
+void UART_SendByte( USART_TypeDef *USARTx, uint8_t *sendData )
 {
-  USARTx->DR = (*SendData & (uint16_t)0x01FF);
+  USARTx->DR = (*sendData & (uint16_t)0x01FF);
+  while(!(USARTx->SR & UART_FLAG_TXE));
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : UART_RecvByte
 **功能 : Recv Byte
-**輸入 : USARTx, *RecvByte
+**輸入 : USARTx, *recvData
 **輸出 : None
-**使用 : UART_RecvByte(USART1, RecvData);
+**使用 : UART_RecvByte(USARTx, recvData);
 **====================================================================================================*/
 /*====================================================================================================*/
-void UART_RecvByte( USART_TypeDef *USARTx, uint8_t *RecvData )
+void UART_RecvByte( USART_TypeDef *USARTx, uint8_t *recvData )
 {
-  *RecvData = (uint16_t)(USARTx->DR & (uint16_t)0x01FF);
+  while(!(USARTx->SR & UART_FLAG_RXNE));
+  *recvData = (uint16_t)(USARTx->DR & (uint16_t)0x01FF);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : UART_RecvByteWTO
 **功能 : Recv Byte with Timeout
-**輸入 : USARTx, *RecvByte, TimeoutMs
+**輸入 : USARTx, *recvData, timeoutMs
 **輸出 : State
-**使用 : UART_RecvByteWTO(USART1, RecvData, 200);
+**使用 : UART_RecvByteWTO(USARTx, recvData, 200);
 **====================================================================================================*/
 /*====================================================================================================*/
-int8_t UART_RecvByteWTO( USART_TypeDef *USARTx, uint8_t *RecvData, uint32_t TimeoutMs )
+int8_t UART_RecvByteWTO( USART_TypeDef *USARTx, uint8_t *recvData, uint32_t timeoutMs )
 {
   while((USARTx->SR & UART_FLAG_RXNE) == RESET) {
-    if(TimeoutMs-- > 0)
-      HAL_Delay(1);
+    if(timeoutMs-- > 0)
+      Delay_1ms(1);
     else
       return ERROR; // timeout
   }
-  *RecvData = (uint16_t)(USARTx->DR & (uint16_t)0x01FF);
+  *recvData = (uint16_t)(USARTx->DR & (uint16_t)0x01FF);
 
   return SUCCESS;
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : UART_SendData
-**功能 : Send Bytes
-**輸入 : USARTx, *SendData, DataLen
+**功能 : Send Data
+**輸入 : USARTx, *sendData, lens
 **輸出 : None
-**使用 : UART_SendByte(USART1, SendData, DataLen);
+**使用 : UART_SendData(USARTx, sendData, lens);
 **====================================================================================================*/
 /*====================================================================================================*/
-void UART_SendData( USART_TypeDef *USARTx, uint8_t *SendData, uint16_t DataLen )
+void UART_SendData( USART_TypeDef *USARTx, uint8_t *sendData, uint16_t lens )
 {
   do {
-    UART_SendByte(USARTx, SendData++);
-  } while(--DataLen);
+    UART_SendByte(USARTx, sendData++);
+  } while(--lens);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : UART_RecvData
-**功能 : Recv Bytes
-**輸入 : USARTx, *RecvData, DataLen
+**功能 : Recv Data
+**輸入 : USARTx, *recvData, lens
 **輸出 : None
-**使用 : UART_RecvData(USART1, RecvData, DataLen);
+**使用 : UART_RecvData(USARTx, recvData, lens);
 **====================================================================================================*/
 /*====================================================================================================*/
-void UART_RecvData( USART_TypeDef *USARTx, uint8_t *RecvData, uint16_t DataLen )
+void UART_RecvData( USART_TypeDef *USARTx, uint8_t *recvData, uint16_t lens )
 {
   do {
-    UART_RecvByte(USARTx, RecvData++);
-  } while(--DataLen);
+    UART_RecvByte(USARTx, recvData++);
+  } while(--lens);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : UART_RecvDataWTO
-**功能 : Recv Bytes with Timeout
-**輸入 : USARTx, *RecvByte, DataLen, TimeoutMs
-**輸出 : State
-**使用 : UART_RecvDataWTO(USART1, RecvData, DataLen, 200);
+**功能 : Recv Data With Timeout
+**輸入 : USARTx, *recvData, lens, timeoutMs
+**輸出 : state
+**使用 : UART_RecvDataWTO(USARTx, recvData, lens, 200);
 **====================================================================================================*/
 /*====================================================================================================*/
-int8_t UART_RecvDataWTO( USART_TypeDef *USARTx, uint8_t *RecvData, uint16_t DataLen, uint32_t TimeoutMs )
+int8_t UART_RecvDataWTO( USART_TypeDef *USARTx, uint8_t *recvData, uint16_t lens, uint32_t timeoutMs )
 {
-  int8_t State = ERROR;
+  int8_t state = ERROR;
 
   do {
-    State = UART_RecvByteWTO(USARTx, RecvData++, TimeoutMs);
-    if(State == ERROR)
-      return ERROR;
-  } while(--DataLen);
+    state = UART_RecvByteWTO(USARTx, recvData++, timeoutMs);
+  } while((--lens) && (state != ERROR));
 
-  return State;
+  return state;
 }
 /*====================================================================================================*/
 /*====================================================================================================*/
