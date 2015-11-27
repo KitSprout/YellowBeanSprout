@@ -2,7 +2,7 @@
 ========
 * Author  : [Hom](https://github.com/Hom-Wang)
 * Version : v1.2
-* Update  : 2015/10/02
+* Update  : 2015/11/28
 
 Description
 ========
@@ -33,7 +33,9 @@ Software
 * [BSY_PeripheralHAL_EXTI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_EXTI) ... EXIT 外部中斷範例
 * [BSY_PeripheralHAL_FLASH](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_FLASH) ... FLASH 讀寫範例
 * [BSY_PeripheralHAL_GPIO](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_GPIO) ... GPIO 輸入輸出範例
+* [BSY_PeripheralHAL_TIM](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_TIM) ... TIM-Base 計時中斷範例
 * [BSY_PeripheralHAL_UART](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_UART) ... UART 傳輸範例
+* [BSY_PeripheralHAL_UART-IntRecv](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_UART-IntRecv) ... UART 中斷範例
 
 Related Documents
 ========
