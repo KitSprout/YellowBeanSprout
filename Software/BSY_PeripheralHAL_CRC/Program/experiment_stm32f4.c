@@ -1,13 +1,13 @@
 /*====================================================================================================*/
 /*====================================================================================================*/
-#include "Dirvers\stm32f4_system.h"
+#include "drivers\stm32f4_system.h"
 
 #include "experiment_stm32f4.h"
 /*====================================================================================================*/
 /*====================================================================================================*/
 #define BUF_SIZE 114
 
-static const uint32_t dataBuf[BUF_SIZE] = {
+const uint32_t dataBuf[BUF_SIZE] = {
   0x00001021, 0x20423063, 0x408450a5, 0x60c670e7, 0x9129a14a, 0xb16bc18c, 0xd1ade1ce, 0xf1ef1231,
   0x32732252, 0x52b54294, 0x72f762d6, 0x93398318, 0xa35ad3bd, 0xc39cf3ff, 0xe3de2462, 0x34430420,
   0x64e674c7, 0x44a45485, 0xa56ab54b, 0x85289509, 0xf5cfc5ac, 0xd58d3653, 0x26721611, 0x063076d7,
@@ -25,32 +25,35 @@ static const uint32_t dataBuf[BUF_SIZE] = {
   0x2e933eb2, 0x0ed11ef0
 };
 
-__IO uint32_t CRC32 = 0;
+#define EXPECTED_CRC32 0x379E9F06
 
-uint32_t ExpectedCRC32 = 0x379E9F06;
+void CRC_Config( void );
+uint32_t CRC_Calculate( const uint32_t* pBuf, uint32_t bufSize );
 /*====================================================================================================*/
 /*====================================================================================================*/
-int main( void )
+void System_Init( void )
 {
   HAL_Init();
 
   GPIO_Config();
   CRC_Config();
+}
 
-  CRC32 = CRC_Calculate(dataBuf, BUF_SIZE);
+int main( void )
+{
+  System_Init();
 
   while(1) {
-    if(CRC32 != ExpectedCRC32)
-      LED_R_Toggle;
+    if(CRC_Calculate(dataBuf, BUF_SIZE) != EXPECTED_CRC32)
+      LED_R_Toggle();
     else
-      LED_G_Toggle;
-    HAL_Delay(100);
+      LED_G_Toggle();
+    Delay_100ms(1);
   }
 }
 /*====================================================================================================*/
 /*====================================================================================================*/
-static CRC_HandleTypeDef CRC_HandleStruct;
-
+CRC_HandleTypeDef CRC_HandleStruct;
 void CRC_Config( void )
 {
   __HAL_RCC_CRC_CLK_ENABLE();
@@ -59,53 +62,9 @@ void CRC_Config( void )
   HAL_CRC_Init(&CRC_HandleStruct);
 }
 
-uint32_t CRC_Calculate( const uint32_t* pBuf, uint32_t BufSize )
+uint32_t CRC_Calculate( const uint32_t* pBuf, uint32_t bufSize )
 {
-  return HAL_CRC_Calculate(&CRC_HandleStruct, (uint32_t*)pBuf, BufSize);
-}
-/*====================================================================================================*/
-/*====================================================================================================*/
-void GPIO_Config( void )
-{
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Clk ******************************************************************/
-  LED_R_GPIO_CLK_ENABLE();
-  LED_G_GPIO_CLK_ENABLE();
-  LED_B_GPIO_CLK_ENABLE();
-  KEY_WU_GPIO_CLK_ENABLE();
-  KEY_BO_GPIO_CLK_ENABLE();
-
-  /* GPIO Pin ******************************************************************/
-  /* LED */
-  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-
-  GPIO_InitStruct.Pin   = LED_R_PIN;
-  HAL_GPIO_Init(LED_R_GPIO_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin   = LED_G_PIN;
-  HAL_GPIO_Init(LED_G_GPIO_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin   = LED_B_PIN;
-  HAL_GPIO_Init(LED_B_GPIO_PORT, &GPIO_InitStruct);
-
-  /* KEY */
-  GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-
-  GPIO_InitStruct.Pin   = KEY_WU_PIN;
-  HAL_GPIO_Init(KEY_WU_GPIO_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin   = KEY_BO_PIN;
-  HAL_GPIO_Init(KEY_BO_GPIO_PORT, &GPIO_InitStruct);
-
-  /* GPIO Pin ******************************************************************/
-  LED_R_Set;
-  LED_G_Set;
-  LED_B_Set;
+  return HAL_CRC_Calculate(&CRC_HandleStruct, (uint32_t*)pBuf, bufSize);
 }
 /*====================================================================================================*/
 /*====================================================================================================*/
