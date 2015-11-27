@@ -1,8 +1,8 @@
 /*====================================================================================================*/
 /*====================================================================================================*/
-#include "Dirvers\stm32f4_system.h"
-#include "Dirvers\stm32f4_flash.h" 
-#include "Algorithms\algorithm_compare.h"
+#include "drivers\stm32f4_system.h"
+#include "drivers\stm32f4_flash.h" 
+#include "algorithms\algorithm_compare.h"
 
 #include "experiment_stm32f4.h"
 /*=====================================================================================================*/
@@ -74,37 +74,42 @@ uint64_t WriteDataU64[128] = {
 #endif
 /*=====================================================================================================*/
 /*=====================================================================================================*/
-int main( void )
+void System_Init( void )
 {
   HAL_Init();
   GPIO_Config();
+}
+
+int main( void )
+{
+  System_Init();
 
 #if FLASH_RW_U8
   Flash_ErasePages(WRITE_SECTOR_START, WRITE_SECTOR_NSECTOR);
   Flash_WritePageU8(FLASH_USER_START_ADDR, WriteDataU8, 1024);
   Flash_ReadPageU8(FLASH_USER_START_ADDR, ReadDataU8, 1024);
   if(Cmp_ArrU8(WriteDataU8, ReadDataU8, 1024) == SUCCESS)
-    LED_R_Reset;
+    LED_R_Reset();
 #endif
-  HAL_Delay(1000);
+  Delay_100ms(5);
 
 #if FLASH_RW_U16
   Flash_ErasePages(WRITE_SECTOR_START, WRITE_SECTOR_NSECTOR);
   Flash_WritePageU16(FLASH_USER_START_ADDR, WriteDataU16, 512);
   Flash_ReadPageU16(FLASH_USER_START_ADDR, ReadDataU16, 512);
   if(Cmp_ArrU16(WriteDataU16, ReadDataU16, 512) == SUCCESS)
-    LED_G_Reset;
+    LED_G_Reset();
 #endif
-  HAL_Delay(1000);
+  Delay_100ms(5);
 
 #if FLASH_RW_U32
   Flash_ErasePages(WRITE_SECTOR_START, WRITE_SECTOR_NSECTOR);
   Flash_WritePageU32(FLASH_USER_START_ADDR, WriteDataU32, 256);
   Flash_ReadPageU32(FLASH_USER_START_ADDR, ReadDataU32, 256);
   if(Cmp_ArrU32(WriteDataU32, ReadDataU32, 256) == SUCCESS)
-    LED_B_Reset;
+    LED_B_Reset();
 #endif
-  HAL_Delay(1000);
+  Delay_100ms(5);
 
 #if FLASH_RW_U64
   Flash_ErasePages(WRITE_SECTOR_START, WRITE_SECTOR_NSECTOR);
@@ -112,63 +117,19 @@ int main( void )
   Flash_ReadPageU64(FLASH_USER_START_ADDR, ReadDataU64, 128);
   if(Cmp_ArrU64(WriteDataU64, ReadDataU64, 128) == SUCCESS) {
     LED_R_Toggle;
-    HAL_Delay(500);
+    Delay_100ms(5);
     LED_R_Toggle;
-    HAL_Delay(500);
+    Delay_100ms(5);
   }
 #endif
-  HAL_Delay(1000);
+  Delay_100ms(20);
 
   while (1) {
-    LED_R_Toggle;
-    LED_G_Toggle;
-    LED_B_Toggle;
-    HAL_Delay(100);
+    LED_R_Toggle();
+    LED_G_Toggle();
+    LED_B_Toggle();
+    Delay_100ms(2);
   }
-}
-/*====================================================================================================*/
-/*====================================================================================================*/
-void GPIO_Config( void )
-{
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Clk ******************************************************************/
-  LED_R_GPIO_CLK_ENABLE();
-  LED_G_GPIO_CLK_ENABLE();
-  LED_B_GPIO_CLK_ENABLE();
-  KEY_WU_GPIO_CLK_ENABLE();
-  KEY_BO_GPIO_CLK_ENABLE();
-
-  /* GPIO Pin ******************************************************************/
-  /* LED */
-  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-
-  GPIO_InitStruct.Pin   = LED_R_PIN;
-  HAL_GPIO_Init(LED_R_GPIO_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin   = LED_G_PIN;
-  HAL_GPIO_Init(LED_G_GPIO_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin   = LED_B_PIN;
-  HAL_GPIO_Init(LED_B_GPIO_PORT, &GPIO_InitStruct);
-
-  /* KEY */
-  GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-
-  GPIO_InitStruct.Pin   = KEY_WU_PIN;
-  HAL_GPIO_Init(KEY_WU_GPIO_PORT, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin   = KEY_BO_PIN;
-  HAL_GPIO_Init(KEY_BO_GPIO_PORT, &GPIO_InitStruct);
-
-  /* GPIO Pin ******************************************************************/
-  LED_R_Set;
-  LED_G_Set;
-  LED_B_Set;
 }
 /*====================================================================================================*/
 /*====================================================================================================*/

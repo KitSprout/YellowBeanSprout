@@ -16,16 +16,18 @@
 #define FLASH_ADDR_SECTOR_7   ((uint32_t)0x08060000) // Sector 7,  128 Kbytes,  512 KBytes
 /*=====================================================================================================*/
 /*=====================================================================================================*/
-HAL_StatusTypeDef Flash_WritePageU8(  uint32_t WriteAddr, const uint8_t  *WriteData, uint32_t DataLens );
-HAL_StatusTypeDef Flash_WritePageU16( uint32_t WriteAddr, const uint16_t *WriteData, uint32_t DataLens );
-HAL_StatusTypeDef Flash_WritePageU32( uint32_t WriteAddr, const uint32_t *WriteData, uint32_t DataLens );
-//HAL_StatusTypeDef Flash_WritePageU64( uint32_t WriteAddr, const uint64_t *WriteData, uint32_t DataLens );
-void              Flash_ReadPageU8(  uint32_t ReadAddr, uint8_t  *ReadData, uint32_t DataLens );
-void              Flash_ReadPageU16( uint32_t ReadAddr, uint16_t *ReadData, uint32_t DataLens );
-void              Flash_ReadPageU32( uint32_t ReadAddr, uint32_t *ReadData, uint32_t DataLens );
-//void              Flash_ReadPageU64( uint32_t ReadAddr, uint64_t *ReadData, uint32_t DataLens );
-uint32_t          Flash_GetSector( uint32_t address );
-HAL_StatusTypeDef Flash_ErasePages( uint32_t ErasePageStart, uint32_t NumPages );
+int8_t   Flash_WritePageU8( uint32_t writeAddr, const uint8_t *writeData, uint32_t lens );
+int8_t   Flash_WritePageU16( uint32_t writeAddr, const uint16_t *writeData, uint32_t lens );
+int8_t   Flash_WritePageU32( uint32_t writeAddr, const uint32_t *writeData, uint32_t lens );
+int8_t   Flash_WritePageU64( uint32_t writeAddr, const uint64_t *writeData, uint32_t lens );
+
+void     Flash_ReadPageU8( uint32_t readAddr, uint8_t *readData, uint32_t lens );
+void     Flash_ReadPageU16( uint32_t readAddr, uint16_t *readData, uint32_t lens );
+void     Flash_ReadPageU32( uint32_t readAddr, uint32_t *readData, uint32_t lens );
+void     Flash_ReadPageU64( uint32_t readAddr, uint64_t *readData, uint32_t lens );
+
+uint32_t Flash_GetSector( uint32_t addr );
+int8_t   Flash_ErasePages( uint32_t erasePageStart, uint32_t nbSectors );
 /*=====================================================================================================*/
 /*=====================================================================================================*/
 #endif	 

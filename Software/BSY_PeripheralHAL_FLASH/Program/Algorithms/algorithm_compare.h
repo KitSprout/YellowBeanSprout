@@ -6,11 +6,11 @@
 #include "stm32f4xx_hal.h"
 /*====================================================================================================*/
 /*====================================================================================================*/
-uint8_t Cmp_ArrU8( const uint8_t *Arr1, const uint8_t *Arr2, uint32_t dataLen );
-uint8_t Cmp_ArrU16( const uint16_t *Arr1, const uint16_t *Arr2, uint32_t dataLen );
-uint8_t Cmp_ArrU32( const uint32_t *Arr1, const uint32_t *Arr2, uint32_t DataLen );
-uint8_t Cmp_ArrU64( const uint64_t *Arr1, const uint64_t *Arr2, uint32_t DataLen );
-uint8_t Cmp_ArrU8U16( const uint8_t *Arr1, const uint16_t *Arr2, uint32_t dataLen );
+int8_t Cmp_ArrU8( const uint8_t *arr1, const uint8_t *arr2, uint32_t lens );
+int8_t Cmp_ArrU16( const uint16_t *arr1, const uint16_t *arr2, uint32_t lens );
+int8_t Cmp_ArrU32( const uint32_t *arr1, const uint32_t *arr2, uint32_t lens );
+int8_t Cmp_ArrU64( const uint64_t *arr1, const uint64_t *arr2, uint32_t lens );
+int8_t Cmp_ArrU8U16( const uint8_t *arr1, const uint16_t *arr2, uint32_t lens );
 /*====================================================================================================*/
 /*====================================================================================================*/
 #endif

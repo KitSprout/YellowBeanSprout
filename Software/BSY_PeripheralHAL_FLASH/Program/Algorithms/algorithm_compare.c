@@ -1,112 +1,107 @@
 /*====================================================================================================*/
 /*====================================================================================================*/
-#include "Dirvers\stm32f4_system.h"
+#include "drivers\stm32f4_system.h"
 
 #include "algorithm_compare.h"
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : Cmp_ArrU8
-**功能 : 比較 u8 Arr1 與 u8 Arr2
-**輸入 : Arr1, Arr2, DataLen
-**輸出 : SUCCESS/ERROR
+**功能 : Compare u8 Arr1 and u8 Arr2
+**輸入 : arr1, arr2, lens
+**輸出 : state
 **使用 : Cmp_ArrU8(Arr1, Arr2, sizeof(Arr1));
 **====================================================================================================*/
 /*====================================================================================================*/
-uint8_t Cmp_ArrU8( const uint8_t *Arr1, const uint8_t *Arr2, uint32_t dataLen )
+int8_t Cmp_ArrU8( const uint8_t *arr1, const uint8_t *arr2, uint32_t lens )
 {
-  uint32_t ErrCount = 0;
+  uint32_t errCnt = 0;
 
-  while(dataLen) {
-    dataLen--;
-    if(Arr1[dataLen] != Arr2[dataLen])
-      ErrCount++;
+  while(lens--) {
+    if(arr1[lens] != arr2[lens])
+      errCnt++;
   }
 
-  return ((ErrCount==0) ? SUCCESS : ERROR);
+  return ((errCnt == 0) ? SUCCESS : ERROR);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : Cmp_ArrU16
-**功能 : 比較 u16 Arr1 與 u16 Arr2
-**輸入 : Arr1, Arr2, DataLen
-**輸出 : SUCCESS/ERROR
+**功能 : Compare u16 Arr1 and u16 Arr2
+**輸入 : arr1, arr2, lens
+**輸出 : state
 **使用 : Cmp_ArrU16(Arr1, Arr2, sizeof(Arr1));
 **====================================================================================================*/
 /*====================================================================================================*/
-uint8_t Cmp_ArrU16( const uint16_t *Arr1, const uint16_t *Arr2, uint32_t dataLen )
+int8_t Cmp_ArrU16( const uint16_t *arr1, const uint16_t *arr2, uint32_t lens )
 {
-  uint32_t ErrCount = 0;
+  uint32_t errCnt = 0;
 
-  while(dataLen) {
-    dataLen--;
-    if(Arr1[dataLen] != Arr2[dataLen])
-      ErrCount++;
+  while(lens--) {
+    if(arr1[lens] != arr2[lens])
+      errCnt++;
   }
 
-  return ((ErrCount==0) ? SUCCESS : ERROR);
+  return ((errCnt == 0) ? SUCCESS : ERROR);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : Cmp_ArrU32
-**功能 : 比較 u32 Arr1 與 u32 Arr2
-**輸入 : Arr1, Arr2, DataLen
-**輸出 : SUCCESS/ERROR
+**功能 : Compare u32 Arr1 and u32 Arr2
+**輸入 : arr1, arr2, lens
+**輸出 : state
 **使用 : Cmp_ArrU32(Arr1, Arr2, sizeof(Arr1));
 **====================================================================================================*/
 /*====================================================================================================*/
-uint8_t Cmp_ArrU32( const uint32_t *Arr1, const uint32_t *Arr2, uint32_t DataLen )
+int8_t Cmp_ArrU32( const uint32_t *arr1, const uint32_t *arr2, uint32_t lens )
 {
-  uint32_t ErrCount = 0;
+  uint32_t errCnt = 0;
 
-  while(DataLen) {
-    DataLen--;
-    if(Arr1[DataLen] != Arr2[DataLen])
-      ErrCount++;
+  while(lens--) {
+    if(arr1[lens] != arr2[lens])
+      errCnt++;
   }
 
-  return ((ErrCount==0) ? SUCCESS : ERROR);
+  return ((errCnt == 0) ? SUCCESS : ERROR);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : Cmp_ArrU64
-**功能 : 比較 U64 Arr1 與 U64 Arr2
-**輸入 : Arr1, Arr2, DataLen
-**輸出 : SUCCESS/ERROR
+**功能 : Compare u64 Arr1 and u64 Arr2
+**輸入 : arr1, arr2, lens
+**輸出 : state
 **使用 : Cmp_ArrU64(Arr1, Arr2, sizeof(Arr1));
 **====================================================================================================*/
 /*====================================================================================================*/
-uint8_t Cmp_ArrU64( const uint64_t *Arr1, const uint64_t *Arr2, uint32_t DataLen )
+int8_t Cmp_ArrU64( const uint64_t *arr1, const uint64_t *arr2, uint32_t lens )
 {
-  uint32_t ErrCount = 0;
+  uint32_t errCnt = 0;
 
-  while(DataLen) {
-    DataLen--;
-    if(Arr1[DataLen] != Arr2[DataLen])
-      ErrCount++;
+  while(lens--) {
+    if(arr1[lens] != arr2[lens])
+      errCnt++;
   }
 
-  return ((ErrCount==0) ? SUCCESS : ERROR);
+  return ((errCnt == 0) ? SUCCESS : ERROR);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : Cmp_ArrU8U16
-**功能 : 比較 u8 Arr1 與 u16 Arr2
-**輸入 : Arr1, Arr2, DataLen
-**輸出 : SUCCESS/ERROR
+**功能 : Compare u8 Arr1 and u16 Arr2
+**輸入 : arr1, arr2, lens
+**輸出 : state
 **使用 : Cmp_ArrU8U16(Arr1, Arr2, sizeof(Arr1));
 **====================================================================================================*/
 /*====================================================================================================*/
-uint8_t Cmp_ArrU8U16( const uint8_t *Arr1, const uint16_t *Arr2, uint32_t dataLen )
+int8_t Cmp_ArrU8U16( const uint8_t *arr1, const uint16_t *arr2, uint32_t lens )
 {
-  uint32_t ErrCount = 0;
+  uint32_t errCnt = 0;
 
-  while(dataLen) {
-    dataLen--;
-    if(Byte16(uint16_t, Arr1[(dataLen<<1)], Arr1[(dataLen<<1)+1]) != Arr2[dataLen])
-      ErrCount++;
+  while(lens--) {
+    if(Byte16(uint16_t, arr1[(lens<<1)], arr1[(lens<<1)+1]) != arr2[lens])
+      errCnt++;
   }
 
-  return ((ErrCount==0) ? SUCCESS : ERROR);
+  return ((errCnt == 0) ? SUCCESS : ERROR);
 }
 /*====================================================================================================*/
 /*====================================================================================================*/
