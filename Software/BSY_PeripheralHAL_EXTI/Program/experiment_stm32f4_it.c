@@ -1,6 +1,6 @@
 /*====================================================================================================*/
 /*====================================================================================================*/
-#include "Dirvers\stm32f4_system.h"
+#include "drivers\stm32f4_system.h"
 
 #include "experiment_stm32f4.h"
 /*====================================================================================================*/
@@ -25,7 +25,7 @@ void SysTick_Handler( void ) { HAL_IncTick(); }
 void EXTI0_IRQHandler( void )
 {
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_0) != RESET) {
-    LED_G_Toggle;
+    EXTI0_TriggerEven_CallBack();
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
   }
 }
@@ -33,7 +33,7 @@ void EXTI0_IRQHandler( void )
 void EXTI2_IRQHandler( void )
 {
   if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_2) != RESET) {
-    LED_B_Toggle;
+    EXTI2_TriggerEven_CallBack();
     __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_2);
   }
 }

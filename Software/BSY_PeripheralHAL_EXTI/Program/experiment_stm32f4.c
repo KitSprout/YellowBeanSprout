@@ -1,40 +1,35 @@
 /*====================================================================================================*/
 /*====================================================================================================*/
-#include "Dirvers\stm32f4_system.h"
+#include "drivers\stm32f4_system.h"
 
 #include "experiment_stm32f4.h"
 /*====================================================================================================*/
 /*====================================================================================================*/
-int main( void )
+void System_Init( void )
 {
   HAL_Init();
   GPIO_Config();
+  EXIT_Config();
+}
+
+int main( void )
+{
+  System_Init();
 
   while(1) {
-    LED_R_Toggle;
-//    LED_G_Toggle;
-//    LED_B_Toggle;
-    HAL_Delay(100);
+    LED_R_Toggle();
+    Delay_100ms(1);
   }
 }
 /*====================================================================================================*/
 /*====================================================================================================*/
-void GPIO_Config( void )
+void EXIT_Config( void )
 {
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Clk Init *************************************************************/
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-
-  /* LED_B PC13 */  /* LED_G PC14 */  /* LED_R PC15 */
-  GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull  = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-
-  GPIO_InitStruct.Pin   = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /* KEY_WU PA0 */  /* KEY_BO PB2 */
   GPIO_InitStruct.Mode  = GPIO_MODE_IT_RISING;
@@ -52,11 +47,16 @@ void GPIO_Config( void )
   HAL_NVIC_SetPriority(EXTI2_IRQn, 2, 0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
-
-  // Init
-  LED_R_Set;
-  LED_G_Set;
-  LED_B_Set;
+}
+/*====================================================================================================*/
+/*====================================================================================================*/
+void EXTI0_TriggerEven_CallBack( void )
+{
+  LED_G_Toggle();
+}
+void EXTI2_TriggerEven_CallBack( void )
+{
+  LED_B_Toggle();
 }
 /*====================================================================================================*/
 /*====================================================================================================*/
