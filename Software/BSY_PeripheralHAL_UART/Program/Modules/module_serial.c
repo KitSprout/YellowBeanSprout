@@ -10,6 +10,7 @@
 #define UARTx                       USART1
 #define UARTx_CLK                   RCC_APB2Periph_USART1
 #define UARTx_CLK_ENABLE()          __HAL_RCC_USART1_CLK_ENABLE()
+#define UARTx_IRQn                  USART1_IRQn
 
 #define UARTx_TX_PIN                GPIO_PIN_6
 #define UARTx_TX_GPIO_PORT          GPIOB
@@ -30,7 +31,7 @@
 #define UARTx_OVERSAMPLE            UART_OVERSAMPLING_16
 /*====================================================================================================*/
 /*====================================================================================================*/
-static UART_HandleTypeDef Serial_HandleStruct;
+UART_HandleTypeDef Serial_InitStruct;
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : Serial_Config
@@ -51,7 +52,7 @@ void Serial_Config( void )
 
   /* UART Pin ******************************************************************/
   GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull      = GPIO_PULLUP;
+  GPIO_InitStruct.Pull      = GPIO_NOPULL;
   GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
 
   GPIO_InitStruct.Pin       = UARTx_TX_PIN;
@@ -62,20 +63,25 @@ void Serial_Config( void )
   GPIO_InitStruct.Alternate = UARTx_RX_AF;
   HAL_GPIO_Init(UARTx_RX_GPIO_PORT, &GPIO_InitStruct);
 
+  /* UART IT *******************************************************************/
+//  HAL_NVIC_SetPriority(UARTx_IRQn, 0, 1);
+//  HAL_NVIC_EnableIRQ(UARTx_IRQn);
+
   /* UART Init *****************************************************************/
-  Serial_HandleStruct.Instance          = UARTx;
-  Serial_HandleStruct.Init.BaudRate     = UARTx_BAUDRATE;
-  Serial_HandleStruct.Init.WordLength   = UARTx_BYTESIZE;
-  Serial_HandleStruct.Init.StopBits     = UARTx_STOPBITS;
-  Serial_HandleStruct.Init.Parity       = UARTx_PARITY;
-  Serial_HandleStruct.Init.HwFlowCtl    = UARTx_HARDWARECTRL;
-  Serial_HandleStruct.Init.Mode         = UARTx_MODE;
-  Serial_HandleStruct.Init.OverSampling = UARTx_OVERSAMPLE;
-  HAL_UART_Init(&Serial_HandleStruct);
+  Serial_InitStruct.Instance          = UARTx;
+  Serial_InitStruct.Init.BaudRate     = UARTx_BAUDRATE;
+  Serial_InitStruct.Init.WordLength   = UARTx_BYTESIZE;
+  Serial_InitStruct.Init.StopBits     = UARTx_STOPBITS;
+  Serial_InitStruct.Init.Parity       = UARTx_PARITY;
+  Serial_InitStruct.Init.HwFlowCtl    = UARTx_HARDWARECTRL;
+  Serial_InitStruct.Init.Mode         = UARTx_MODE;
+  Serial_InitStruct.Init.OverSampling = UARTx_OVERSAMPLE;
+  HAL_UART_Init(&Serial_InitStruct);
 
   /* UART Enable ***************************************************************/
-  __HAL_UART_ENABLE(&Serial_HandleStruct);
-  __HAL_UART_CLEAR_FLAG(&Serial_HandleStruct, UART_FLAG_TC);
+//  __HAL_UART_ENABLE_IT(&Serial_InitStruct, UART_IT_RXNE);
+  __HAL_UART_ENABLE(&Serial_InitStruct);
+  __HAL_UART_CLEAR_FLAG(&Serial_InitStruct, UART_FLAG_TC);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
