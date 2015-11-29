@@ -17,7 +17,7 @@ void PendSV_Handler( void ) {}
 void SysTick_Handler( void ) { HAL_IncTick(); }
 /*====================================================================================================*/
 /*====================================================================================================*/
-extern UART_HandleTypeDef Serial_HandleStruct;
+extern UART_HandleTypeDef Serial_InitStruct;
 /*====================================================================================================*/
 /*====================================================================================================*/
 //void WWDG_IRQHandler( void ) {}
@@ -59,10 +59,10 @@ extern UART_HandleTypeDef Serial_HandleStruct;
 //void SPI2_IRQHandler( void ) {}
 void USART1_IRQHandler( void )
 {
-  if(__HAL_UART_GET_IT_SOURCE(&Serial_HandleStruct, UART_IT_RXNE) != RESET) {
+  if(__HAL_UART_GET_IT_SOURCE(&Serial_InitStruct, UART_IT_RXNE) != RESET) {
     Serial_evenCallBack();
   }
-  __HAL_UART_GET_IT_SOURCE(&Serial_HandleStruct, UART_IT_RXNE);
+  __HAL_UART_GET_IT_SOURCE(&Serial_InitStruct, UART_IT_RXNE);
 }
 //void USART2_IRQHandler( void ) {}
 //void USART3_IRQHandler( void ) {}
