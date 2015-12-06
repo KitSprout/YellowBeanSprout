@@ -4,15 +4,16 @@
 #define __MODULE_ILI9341_H
 
 #include "stm32f4xx_hal.h"
-#include "Algorithms\algorithm_string.h"
+#include "algorithms\algorithm_string.h"
 /*====================================================================================================*/
 /*====================================================================================================*/
+#define H_VIEW
 #ifdef H_VIEW
+  #define LCD_W 240
+  #define LCD_H 320
+#else
   #define LCD_W 320
   #define LCD_H 240
-#else
-  #define LCD_W 240
-  #define LCD_H 320 
 #endif
 
 #define RGB_TO_GARY(C_R, C_G, C_B)  ((uint8_t)(0.299f*C_R + 0.587f*C_G + 0.114f*C_B))
@@ -61,7 +62,7 @@ void LCD_Clear( uint16_t Color );
 
 void LCD_SetCursor( uint16_t CoordiX, uint16_t CoordiY );
 void LCD_SetWindow( uint16_t StartX, uint16_t StartY, uint16_t EndX, uint16_t EndY );
-void LCD_SetBackLight( uint16_t BackLight );
+void LCD_SetBackLight( int16_t backLight );
 
 void LCD_DrawPixel( uint16_t CoordiX, uint16_t CoordiY, uint16_t Color );
 void LCD_DrawLineX( uint16_t CoordiX, uint16_t CoordiY, uint16_t Length, uint16_t Color );
@@ -73,7 +74,7 @@ void LCD_DrawPicture( uint16_t CoordiX, uint16_t CoordiY, uint16_t Width, uint16
 
 void LCD_PutChar( uint16_t CoordiX, uint16_t CoordiY, char *ChWord, uint16_t FontColor, uint16_t BackColor );
 void LCD_PutStr( uint16_t CoordiX, uint16_t CoordiY, char *ChWord, uint16_t FontColor, uint16_t BackColor );
-void LCD_PutNum( uint16_t CoordiX, uint16_t CoordiY, StrType Type, uint8_t Length, uint32_t NumData, uint16_t FontColor, uint16_t BackColor );
+void LCD_PutNum( uint16_t CoordiX, uint16_t CoordiY, StringType Type, uint8_t Length, uint32_t NumData, uint16_t FontColor, uint16_t BackColor );
 
 void LCD_TestColoBar( void );
 /*====================================================================================================*/

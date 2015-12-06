@@ -5,16 +5,16 @@
 /*=====================================================================================================*/
 /*=====================================================================================================*
 **函數 : SPI_RW
-**功能 : Receive Data
+**功能 : Read/Write Data
 **輸入 : SPIx
 **輸出 : None
-**使用 : Read = SPI_RW(SPI1, 0xFFFF);
+**使用 : Read = SPI_RW(SPIx, 0xFFFF);
 **=====================================================================================================*/
 /*=====================================================================================================*/
-uint16_t SPI_RW( SPI_TypeDef *SPIx, uint16_t WriteByte )
+uint16_t SPI_RW( SPI_TypeDef *SPIx, uint16_t writeByte )
 {
   while((SPIx->SR & SPI_FLAG_TXE) == (uint16_t)RESET);
-  SPIx->DR = WriteByte;
+  SPIx->DR = writeByte;
   while((SPIx->SR & SPI_FLAG_RXNE) == (uint16_t)RESET);
 
   return SPIx->DR;

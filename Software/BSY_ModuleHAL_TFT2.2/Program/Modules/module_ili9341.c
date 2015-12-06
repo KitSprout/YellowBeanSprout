@@ -1,8 +1,8 @@
 /*====================================================================================================*/
 /*====================================================================================================*/
-#include "Dirvers\stm32f4_system.h"
-#include "Dirvers\stm32f4_spi.h"
-#include "Algorithms\algorithm_string.h"
+#include "drivers\stm32f4_system.h"
+#include "drivers\stm32f4_spi.h"
+#include "algorithms\algorithm_string.h"
 
 #include "module_ili9341.h"
 #include "module_fontlib.h"
@@ -15,15 +15,19 @@
 #define LCD_LIG_GPIO_PORT           GPIOA
 #define LCD_LIG_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
 
-//#define BLIGHT_PWM
+#define BLIGHT_PWM
 #ifdef BLIGHT_PWM
-  #define LCD_LIG                   TIM2->CCR2
+  #define LCD_LIG_TIMx              TIM2
+  #define LCD_LIG_TIMx_CHANNEL      TIM_CHANNEL_2
+  #define LCD_TIMx_CLK_ENABLE()     __HAL_RCC_TIM2_CLK_ENABLE();
+  #define LCD_LIG_AF                GPIO_AF1_TIM2
+  #define LCD_LIG                   LCD_LIG_TIMx->CCR2
   #define BLIGHT_MAX                255
   #define BLIGHT_MIN                0
   #define BLIGHT_DEFAULT            200
 #else
-  #define LCD_LIG_H                 __GPIO_SET(LCD_LIG_GPIO_PORT, LCD_LIG_PIN)
-  #define LCD_LIG_L                 __GPIO_RST(LCD_LIG_GPIO_PORT, LCD_LIG_PIN)
+  #define LCD_LIG_H()               __GPIO_SET(LCD_LIG_GPIO_PORT, LCD_LIG_PIN)
+  #define LCD_LIG_L()               __GPIO_RST(LCD_LIG_GPIO_PORT, LCD_LIG_PIN)
   #define BLIGHT_MAX                1
   #define BLIGHT_MIN                0
   #define BLIGHT_DEFAULT            1
@@ -32,21 +36,21 @@
 #define LCD_DC_PIN                  GPIO_PIN_3
 #define LCD_DC_GPIO_PORT            GPIOA
 #define LCD_DC_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOA_CLK_ENABLE()
-#define LCD_DC_H                    __GPIO_SET(LCD_DC_GPIO_PORT, LCD_DC_PIN)
-#define LCD_DC_L                    __GPIO_RST(LCD_DC_GPIO_PORT, LCD_DC_PIN)
+#define LCD_DC_H()                  __GPIO_SET(LCD_DC_GPIO_PORT, LCD_DC_PIN)
+#define LCD_DC_L()                  __GPIO_RST(LCD_DC_GPIO_PORT, LCD_DC_PIN)
 
 #define LCD_RST_PIN                 GPIO_PIN_2
 #define LCD_RST_GPIO_PORT           GPIOA
 #define LCD_RST_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
-#define LCD_RST_H                   __GPIO_SET(LCD_RST_GPIO_PORT, LCD_RST_PIN)
-#define LCD_RST_L                   __GPIO_RST(LCD_RST_GPIO_PORT, LCD_RST_PIN)
+#define LCD_RST_H()                 __GPIO_SET(LCD_RST_GPIO_PORT, LCD_RST_PIN)
+#define LCD_RST_L()                 __GPIO_RST(LCD_RST_GPIO_PORT, LCD_RST_PIN)
 
 #define LCD_CST_PIN                 GPIO_PIN_4
 #define LCD_CST_GPIO_PORT           GPIOA
 #define LCD_CST_GPIO_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
 #define LCD_CST_AF                  GPIO_AF5_SPI1
-#define LCD_CST_H                   __GPIO_SET(LCD_CST_GPIO_PORT, LCD_CST_PIN)
-#define LCD_CST_L                   __GPIO_RST(LCD_CST_GPIO_PORT, LCD_CST_PIN)
+#define LCD_CST_H()                 __GPIO_SET(LCD_CST_GPIO_PORT, LCD_CST_PIN)
+#define LCD_CST_L()                 __GPIO_RST(LCD_CST_GPIO_PORT, LCD_CST_PIN)
 
 #define LCD_SCK_PIN                 GPIO_PIN_5
 #define LCD_SCK_GPIO_PORT           GPIOA
@@ -64,16 +68,11 @@
 #define LCD_SDI_AF                  GPIO_AF5_SPI1
 /*====================================================================================================*/
 /*====================================================================================================*/
-static void ILI9341_LigConfig( void );
-static void LCD_WriteCmd( uint8_t WriteCmd );
-static void LCD_WriteData( uint16_t WriteData );
-static void LCD_WriteColor( uint16_t Color );
-
-static SPI_HandleTypeDef SPI_HandleStruct;
+static SPI_HandleTypeDef LCD_SPI_InitStruct;
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : ILI9341_Config
-**功能 : 配置IO
+**功能 : ILI9341 Config
 **輸入 : None
 **輸出 : None
 **使用 : ILI9341_Config();
@@ -124,29 +123,29 @@ void ILI9341_Config( void )
   GPIO_InitStruct.Alternate = LCD_SDI_AF;
   HAL_GPIO_Init(LCD_SDI_GPIO_PORT, &GPIO_InitStruct);
 
-  LCD_CST_H;  // 低電位有效
+  LCD_CST_H();  // LOW ENABLE
 
   /* SPI Init ****************************************************************/
-  SPI_HandleStruct.Instance               = LCD_SPIx;
-  SPI_HandleStruct.Init.Mode              = SPI_MODE_MASTER;
-  SPI_HandleStruct.Init.Direction         = SPI_DIRECTION_2LINES;
-  SPI_HandleStruct.Init.DataSize          = SPI_DATASIZE_8BIT;
-  SPI_HandleStruct.Init.CLKPolarity       = SPI_POLARITY_HIGH;
-  SPI_HandleStruct.Init.CLKPhase          = SPI_PHASE_2EDGE;
-  SPI_HandleStruct.Init.NSS               = SPI_NSS_SOFT;
-  SPI_HandleStruct.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  SPI_HandleStruct.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-  SPI_HandleStruct.Init.TIMode            = SPI_TIMODE_DISABLE;
-  SPI_HandleStruct.Init.CRCCalculation    = SPI_CRCCALCULATION_ENABLE;
-  SPI_HandleStruct.Init.CRCPolynomial     = 7;
-  HAL_SPI_Init(&SPI_HandleStruct);
+  LCD_SPI_InitStruct.Instance               = LCD_SPIx;
+  LCD_SPI_InitStruct.Init.Mode              = SPI_MODE_MASTER;
+  LCD_SPI_InitStruct.Init.Direction         = SPI_DIRECTION_2LINES;
+  LCD_SPI_InitStruct.Init.DataSize          = SPI_DATASIZE_8BIT;
+  LCD_SPI_InitStruct.Init.CLKPolarity       = SPI_POLARITY_HIGH;
+  LCD_SPI_InitStruct.Init.CLKPhase          = SPI_PHASE_2EDGE;
+  LCD_SPI_InitStruct.Init.NSS               = SPI_NSS_SOFT;
+  LCD_SPI_InitStruct.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  LCD_SPI_InitStruct.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+  LCD_SPI_InitStruct.Init.TIMode            = SPI_TIMODE_DISABLE;
+  LCD_SPI_InitStruct.Init.CRCCalculation    = SPI_CRCCALCULATION_ENABLE;
+  LCD_SPI_InitStruct.Init.CRCPolynomial     = 7;
+  HAL_SPI_Init(&LCD_SPI_InitStruct);
 
-  __HAL_SPI_ENABLE(&SPI_HandleStruct);
+  __HAL_SPI_ENABLE(&LCD_SPI_InitStruct);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : ILI9341_LigConfig
-**功能 : 配置調光 IO
+**功能 : ILI9341 Light Config
 **輸入 : None
 **輸出 : None
 **使用 : ILI9341_LigConfig();
@@ -157,42 +156,43 @@ static void ILI9341_LigConfig( void )
   GPIO_InitTypeDef GPIO_InitStruct;
 
 #ifdef BLIGHT_PWM
-  TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-  TIM_OCInitTypeDef TIM_OCInitStruct;
+  TIM_HandleTypeDef TIM_InitStruct;
+  TIM_OC_InitTypeDef TIM_OC_InitStruct;
 
   /* PWM Clk Init *************************************************************/
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-  RCC_APB2PeriphClockCmd(LCD_LIG_GPIO_CLK, ENABLE);
+  LCD_TIMx_CLK_ENABLE();
 
-  /* LIG PA1  */
-  GPIO_InitStruct.GPIO_Pin = LCD_LIG_PIN;
-  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_Init(LCD_LIG_GPIO_PORT, &GPIO_InitStruct);
+  /* LIG GPIO  */
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
 
-  TIM_DeInit(TIM2);
+  GPIO_InitStruct.Alternate = LCD_LIG_AF;
+  GPIO_InitStruct.Pin = LCD_LIG_PIN;
+  HAL_GPIO_Init(LCD_LIG_GPIO_PORT, &GPIO_InitStruct);
 
   /************************** PWM Output **************************************/
-  /* 設定 TIM2 Time Base */
-  TIM_TimeBaseStruct.TIM_Period = (uint16_t)(256-1);          // Set Period
-  TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(0);           // Set Freq
-  TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-  TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;    // Count Up
-  TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStruct);
+  /* TIMx Time Base */
+  TIM_InitStruct.Instance               = LCD_LIG_TIMx;
+  TIM_InitStruct.Init.Prescaler         = 90 - 1;         // 90 MHz / 72 = 1 MHz
+  TIM_InitStruct.Init.Period            = BLIGHT_MAX - 1; // PWM Freq = 10 kHz
+  TIM_InitStruct.Init.ClockDivision     = 0;
+  TIM_InitStruct.Init.CounterMode       = TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Init.RepetitionCounter = 0;
+  HAL_TIM_PWM_Init(&TIM_InitStruct);
 
-  /* 設定 TIM2 OC2 */
-  TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;              // PWM1 Mode
-  TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;  // Enable OC
-  TIM_OCInitStruct.TIM_Pulse = 0;                             // Period Pulse
-  TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;      // 當計數值小於 PWM_MOTOR_MIN 時為高電平
-  TIM_OC2Init(TIM2, &TIM_OCInitStruct);                       // 初始化 TIM2 OC2
-  TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);           // Enable TIM2 OC2 Preload
+  /* TIMx OC2 */
+  TIM_OC_InitStruct.OCMode      = TIM_OCMODE_PWM2;
+  TIM_OC_InitStruct.OCFastMode  = TIM_OCFAST_DISABLE;
+  TIM_OC_InitStruct.OCPolarity  = TIM_OCPOLARITY_LOW;
+  TIM_OC_InitStruct.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  TIM_OC_InitStruct.OCIdleState = TIM_OCIDLESTATE_SET;
+  TIM_OC_InitStruct.OCNIdleState= TIM_OCNIDLESTATE_RESET;
 
-  /* 啟動 */
-  TIM_ARRPreloadConfig(TIM2, ENABLE);                         // Enable TIM2 ARR Preload
-  TIM_Cmd(TIM2, ENABLE);                                      // Enable TIM2
-
-  LCD_LIG = BLIGHT_MIN;
+  /* Enable */
+  TIM_OC_InitStruct.Pulse = BLIGHT_MIN;
+  HAL_TIM_PWM_ConfigChannel(&TIM_InitStruct, &TIM_OC_InitStruct, LCD_LIG_TIMx_CHANNEL);
+  HAL_TIM_PWM_Start(&TIM_InitStruct, LCD_LIG_TIMx_CHANNEL);
 
 #else
   /* GPIO Clk ******************************************************************/
@@ -206,7 +206,7 @@ static void ILI9341_LigConfig( void )
   GPIO_InitStruct.Pin       = LCD_LIG_PIN;
   HAL_GPIO_Init(LCD_LIG_GPIO_PORT, &GPIO_InitStruct);
 
-  LCD_LIG_L;
+  LCD_LIG_L();
 
 #endif
 }
@@ -214,55 +214,55 @@ static void ILI9341_LigConfig( void )
 /*====================================================================================================*
 **函數 : LCD_WriteCmd
 **功能 : Write Command or Address
-**輸入 : WriteCmd
+**輸入 : writeCmd
 **輸出 : None
 **使用 : LCD_WriteCmd(0xCB);
 **====================================================================================================*/
 /*====================================================================================================*/
-static void LCD_WriteCmd( uint8_t WriteCmd )
+static void LCD_WriteCmd( uint8_t writeCmd )
 {
-  LCD_CST_L;
-  LCD_DC_L;
-  SPI_RW(LCD_SPIx, WriteCmd);
-  LCD_CST_H;
+  LCD_CST_L();
+  LCD_DC_L();
+  SPI_RW(LCD_SPIx, writeCmd);
+  LCD_CST_H();
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_WriteData
 **功能 : Write Data
-**輸入 : WriteData
+**輸入 : writeData
 **輸出 : None
 **使用 : LCD_WriteData(Byte8H(Color));
 **====================================================================================================*/
 /*====================================================================================================*/
-static void LCD_WriteData( uint16_t WriteData )
+static void LCD_WriteData( uint16_t writeData )
 {
-  LCD_CST_L;
-  LCD_DC_H;
-  SPI_RW(LCD_SPIx, WriteData);
-  LCD_CST_H;
+  LCD_CST_L();
+  LCD_DC_H();
+  SPI_RW(LCD_SPIx, writeData);
+  LCD_CST_H();
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_WriteColor
 **功能 : Write Color
-**輸入 : Color
+**輸入 : color
 **輸出 : None
 **使用 : LCD_WriteColor(BLACK);
 **====================================================================================================*/
 /*====================================================================================================*/
-static void LCD_WriteColor( uint16_t Color )
+static void LCD_WriteColor( uint16_t color )
 {
-  LCD_CST_L;
-  LCD_DC_H;
-  SPI_RW(LCD_SPIx, Byte8H(Color));
-  SPI_RW(LCD_SPIx, Byte8L(Color));
-  LCD_CST_H;
+  LCD_CST_L();
+  LCD_DC_H();
+  SPI_RW(LCD_SPIx, Byte8H(color));
+  SPI_RW(LCD_SPIx, Byte8L(color));
+  LCD_CST_H();
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : ILI9341_Init
-**功能 : 初始化 ILI9341
+**功能 : ILI9341 Init
 **輸入 : None
 **輸出 : None
 **使用 : ILI9341_Init();
@@ -270,10 +270,10 @@ static void LCD_WriteColor( uint16_t Color )
 /*====================================================================================================*/
 void ILI9341_Init( void )
 {
-  // Reset
-  LCD_RST_L;
+  // reset
+  LCD_RST_L();
   Delay_100ms(1);
-  LCD_RST_H;
+  LCD_RST_H();
   Delay_10ms(5);
 
   LCD_WriteCmd(0xCB);
@@ -313,7 +313,7 @@ void ILI9341_Init( void )
   LCD_WriteData(0x10);  // SAP[2:0];BT[3:0]
 
   LCD_WriteCmd(0xC5);   // VCM control
-  LCD_WriteData(0x3e);  // 對比度調節
+  LCD_WriteData(0x3e);  // 
   LCD_WriteData(0x28); 
 
   LCD_WriteCmd(0xC7);   // VCM control2
@@ -321,9 +321,9 @@ void ILI9341_Init( void )
 
   LCD_WriteCmd(0x36);   // Memory Access Control
 #ifdef H_VIEW
-  LCD_WriteData(0xE8);  //C8  // 48 68豎屏 // 28 E8 橫屏
+  LCD_WriteData(0x48);  // H
 #else
-  LCD_WriteData(0x48);
+  LCD_WriteData(0xE8);  // V
 #endif
 
   LCD_WriteCmd(0x3A);
@@ -391,81 +391,81 @@ void ILI9341_Init( void )
 /*====================================================================================================*
 **函數 : LCD_Clear
 **功能 : Clear Windows
-**輸入 : Color
+**輸入 : color
 **輸出 : None
 **使用 : LCD_Clear(BLACK);
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_Clear( uint16_t Color )
+void LCD_Clear( uint16_t color )
 {
-  uint32_t Point = LCD_W * LCD_H;
+  uint32_t point = LCD_W * LCD_H;
 
-  LCD_SetWindow(0, 0, LCD_W-1, LCD_H-1);
+  LCD_SetWindow(0, 0, LCD_W - 1, LCD_H - 1);
 
-  while(Point--)
-    LCD_WriteColor(Color);
+  while(point--)
+    LCD_WriteColor(color);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_SetCursor
 **功能 : Set Cursor
-**輸入 : CoordiX, CoordiY
+**輸入 : coordiX, coordiY
 **輸出 : None
 **使用 : LCD_SetCursor(StartX, StartY);
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_SetCursor( uint16_t CoordiX, uint16_t CoordiY )
+void LCD_SetCursor( uint16_t coordiX, uint16_t coordiY )
 {
   LCD_WriteCmd(0x2A);
-  LCD_WriteData(Byte8H(CoordiX));
-  LCD_WriteData(Byte8L(CoordiX));
+  LCD_WriteData(Byte8H(coordiX));
+  LCD_WriteData(Byte8L(coordiX));
   LCD_WriteCmd(0x2B);
-  LCD_WriteData(Byte8H(CoordiY));
-  LCD_WriteData(Byte8L(CoordiY));
+  LCD_WriteData(Byte8H(coordiY));
+  LCD_WriteData(Byte8L(coordiY));
   LCD_WriteCmd(0x2C);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_SetWindow
 **功能 : Set Window
-**輸入 : StartX, StartY, EndX, EndY
+**輸入 : startX, startY, endX, endY
 **輸出 : None
 **使用 : LCD_SetWindow(X0, Y0, X1, Y1);
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_SetWindow( uint16_t StartX, uint16_t StartY, uint16_t EndX, uint16_t EndY )
+void LCD_SetWindow( uint16_t startX, uint16_t startY, uint16_t endX, uint16_t endY )
 {
   LCD_WriteCmd(0x2A);
-  LCD_WriteData(Byte8H(StartX));
-  LCD_WriteData(Byte8L(StartX));
-  LCD_WriteData(Byte8H(EndX));
-  LCD_WriteData(Byte8L(EndX));
+  LCD_WriteData(Byte8H(startX));
+  LCD_WriteData(Byte8L(startX));
+  LCD_WriteData(Byte8H(endX));
+  LCD_WriteData(Byte8L(endX));
   LCD_WriteCmd(0x2B);
-  LCD_WriteData(Byte8H(StartY));
-  LCD_WriteData(Byte8L(StartY));
-  LCD_WriteData(Byte8H(EndY));
-  LCD_WriteData(Byte8L(EndY));
+  LCD_WriteData(Byte8H(startY));
+  LCD_WriteData(Byte8L(startY));
+  LCD_WriteData(Byte8H(endY));
+  LCD_WriteData(Byte8L(endY));
   LCD_WriteCmd(0x2C);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_SetBackLight
 **功能 : Set LCD BackLight
-**輸入 : BackLight
+**輸入 : backLight
 **輸出 : None
 **使用 : LCD_SetBackLight(BLIGHT_DEFAULT);
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_SetBackLight( uint16_t BackLight )
+void LCD_SetBackLight( int16_t backLight )
 {
 #ifdef BLIGHT_PWM
-  if(BackLight <= 0)                LCD_LIG = BLIGHT_MIN;
-  else if(BackLight >= BLIGHT_MAX)  LCD_LIG = BLIGHT_MAX;
-  else                              LCD_LIG = BackLight;
+  if(backLight <= BLIGHT_MIN)       LCD_LIG = BLIGHT_MIN;
+  else if(backLight >= BLIGHT_MAX)  LCD_LIG = BLIGHT_MAX;
+  else                              LCD_LIG = backLight;
 
 #else
-  if(BackLight == 0)  LCD_LIG_L;
-  else                LCD_LIG_H;
+  if(backLight == 0)  LCD_LIG_L();
+  else                LCD_LIG_H();
 
 #endif
 }
@@ -473,141 +473,137 @@ void LCD_SetBackLight( uint16_t BackLight )
 /*====================================================================================================*
 **函數 : LCD_DrawPixel
 **功能 : Draw a Pixel
-**輸入 : CoordiX, CoordiY, Color
+**輸入 : coordiX, coordiY, color
 **輸出 : None
-**使用 : LCD_DrawPixel(CoordiX, CoordiY, Color);
+**使用 : LCD_DrawPixel(coordiX, coordiY, color);
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_DrawPixel( uint16_t CoordiX, uint16_t CoordiY, uint16_t Color )
+void LCD_DrawPixel( uint16_t coordiX, uint16_t coordiY, uint16_t color )
 {
-  LCD_SetCursor(CoordiX, CoordiY);
-  LCD_WriteColor(Color);
+  LCD_SetCursor(coordiX, coordiY);
+  LCD_WriteColor(color);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_DrawLineX
 **功能 : Draw X-Axis Line
-**輸入 : CoordiX, CoordiY, Length, Color
+**輸入 : coordiX, coordiY, length, color
 **輸出 : None
-**使用 : LCD_DrawLine(CoordiX, CoordiY, Length, Color)
+**使用 : LCD_DrawLine(coordiX, coordiY, length, color)
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_DrawLineX( uint16_t CoordiX, uint16_t CoordiY, uint16_t Length, uint16_t Color )
+void LCD_DrawLineX( uint16_t coordiX, uint16_t coordiY, uint16_t length, uint16_t color )
 {
-  uint16_t i;
-
-  for(i = 0; i < Length; i++)
-    LCD_DrawPixel(CoordiX+i, CoordiY, Color);
+  for(uint16_t i = 0; i < length; i++)
+    LCD_DrawPixel(coordiX + i, coordiY, color);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_DrawLineY
 **功能 : Draw Y-Axis Line
-**輸入 : CoordiX, CoordiY, Length, Color
+**輸入 : coordiX, coordiY, length, color
 **輸出 : None
-**使用 : LCD_DrawLine(CoordiX, CoordiY, Length, Color)
+**使用 : LCD_DrawLine(coordiX, coordiY, length, color)
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_DrawLineY( uint16_t CoordiX, uint16_t CoordiY, uint16_t Length, uint16_t Color )
+void LCD_DrawLineY( uint16_t coordiX, uint16_t coordiY, uint16_t length, uint16_t color )
 {
-  uint16_t i;
-
-  for(i = 0; i < Length; i++)
-    LCD_DrawPixel(CoordiX, CoordiY+i, Color);
+  for(uint16_t i = 0; i < length; i++)
+    LCD_DrawPixel(coordiX, coordiY + i, color);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_DrawRectangle
 **功能 : Draw Rectangle
-**輸入 : CoordiX, CoordiY, Length, Width, Color
+**輸入 : coordiX, coordiY, width, height, color
 **輸出 : None
-**使用 : LCD_DrawRectangle(CoordiX, CoordiY, Width, Height, Color)
+**使用 : LCD_DrawRectangle(coordiX, coordiY, width, height, color)
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_DrawRectangle( uint16_t CoordiX, uint16_t CoordiY, uint16_t Width, uint16_t Height, uint16_t Color )
+void LCD_DrawRectangle( uint16_t coordiX, uint16_t coordiY, uint16_t width, uint16_t height, uint16_t color )
 {
   uint16_t i;
 
-  for(i = 0; i <= Height; i++) {
-    LCD_DrawPixel(CoordiX+i, CoordiY, Color);
-    LCD_DrawPixel(CoordiX+i, CoordiY+Width, Color);
+  for(i = 0; i <= height; i++) {
+    LCD_DrawPixel(coordiX + i, coordiY, color);
+    LCD_DrawPixel(coordiX + i, coordiY + width, color);
   }
-  for(i = 1; i < Width; i++) {
-    LCD_DrawPixel(CoordiX, CoordiY+i, Color);
-    LCD_DrawPixel(CoordiX+Height, CoordiY+i, Color);
+  for(i = 1; i < width; i++) {
+    LCD_DrawPixel(coordiX, coordiY + i, color);
+    LCD_DrawPixel(coordiX + height, coordiY + i, color);
   }
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_DrawRectangleFill
 **功能 : Draw Rectangle
-**輸入 : CoordiX, CoordiY, Length, Width, Color
+**輸入 : coordiX, coordiY, width, height, color
 **輸出 : None
-**使用 : LCD_DrawRectangleFill(CoordiX, CoordiY, Width, Height, Color)
+**使用 : LCD_DrawRectangleFill(coordiX, coordiY, width, height, color)
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_DrawRectangleFill( uint16_t CoordiX, uint16_t CoordiY, uint16_t Width, uint16_t Height, uint16_t Color )
+void LCD_DrawRectangleFill( uint16_t coordiX, uint16_t coordiY, uint16_t width, uint16_t height, uint16_t color )
 {
   uint16_t i, j;
 
-  for(i = 0; i < Width; i++)
-    for(j = 0; j < Height; j++)
-      LCD_DrawPixel(CoordiX+j, CoordiY+i, Color);
+  for(i = 0; i < width; i++)
+    for(j = 0; j < height; j++)
+      LCD_DrawPixel(coordiX + j, coordiY + i, color);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_DrawCircle
 **功能 : Draw Circle
-**輸入 : CoordiX, CoordiY, Radius, Color
+**輸入 : coordiX, coordiY, radius, color
 **輸出 : None
-**使用 : LCD_DrawCircle(CoordiX, CoordiY, Radius, Color)
+**使用 : LCD_DrawCircle(coordiX, coordiY, radius, color)
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_DrawCircle( uint16_t CoordiX, uint16_t CoordiY, uint16_t Radius, uint16_t Color )
+void LCD_DrawCircle( uint16_t coordiX, uint16_t coordiY, uint16_t radius, uint16_t color )
 {
   int a, b;
   int di;
 
   a = 0;
-  b = Radius;
-  di = 3 - (Radius << 1);
+  b = radius;
+  di = 3 - (radius << 1);
 
   while(a <= b) {
-    LCD_DrawPixel(CoordiX-b, CoordiY-a, Color); //3
-    LCD_DrawPixel(CoordiX+b, CoordiY-a, Color); //0
-    LCD_DrawPixel(CoordiX-a, CoordiY+b, Color); //1
-    LCD_DrawPixel(CoordiX-b, CoordiY-a, Color); //7
-    LCD_DrawPixel(CoordiX-a, CoordiY-b, Color); //2
-    LCD_DrawPixel(CoordiX+b, CoordiY+a, Color); //4
-    LCD_DrawPixel(CoordiX+a, CoordiY-b, Color); //5
-    LCD_DrawPixel(CoordiX+a, CoordiY+b, Color); //6
-    LCD_DrawPixel(CoordiX-b, CoordiY+a, Color);
+    LCD_DrawPixel(coordiX-b, coordiY-a, color); //3
+    LCD_DrawPixel(coordiX+b, coordiY-a, color); //0
+    LCD_DrawPixel(coordiX-a, coordiY+b, color); //1
+    LCD_DrawPixel(coordiX-b, coordiY-a, color); //7
+    LCD_DrawPixel(coordiX-a, coordiY-b, color); //2
+    LCD_DrawPixel(coordiX+b, coordiY+a, color); //4
+    LCD_DrawPixel(coordiX+a, coordiY-b, color); //5
+    LCD_DrawPixel(coordiX+a, coordiY+b, color); //6
+    LCD_DrawPixel(coordiX-b, coordiY+a, color);
     a++;
-    // 使用Bresenham算法畫圓
+    // Bresenham
     if(di < 0)
       di += 4 * a + 6;
     else {
       di += 10 + 4* (a - b);
       b--;
     }
-    LCD_DrawPixel(CoordiX+a, CoordiY+b, Color);
+    LCD_DrawPixel(coordiX+a, coordiY+b, color);
   }
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_DrawPicture
 **功能 : Draw Picture
-**輸入 : CoordiX, CoordiY, Length, Width, Pic
+**輸入 : coordiX, coordiY, width, height, pic
 **輸出 : None
-**使用 : LCD_DrawPicture(CoordiX, CoordiY, Width, Height, Pic);
+**使用 : LCD_DrawPicture(coordiX, coordiY, width, height, pic);
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_DrawPicture( uint16_t CoordiX, uint16_t CoordiY, uint16_t Width, uint16_t Height, const uint8_t *Pic )
+void LCD_DrawPicture( uint16_t coordiX, uint16_t coordiY, uint16_t width, uint16_t height, const uint8_t *pic )
 {
-  uint16_t *readPixel = (uint16_t*)Pic;
-  uint32_t i = 0, j = Height * Width;
+  uint16_t *readPixel = (uint16_t*)pic;
+  uint32_t i = 0, j = height * width;
 
-  LCD_SetWindow(CoordiX, CoordiY, CoordiX+Width-1, CoordiY+Height-1);
+  LCD_SetWindow(coordiX, coordiY, coordiX + width - 1, coordiY + height - 1);
 
   for(i = 0; i < j; i++)
     LCD_WriteColor(readPixel[i]);
@@ -616,23 +612,23 @@ void LCD_DrawPicture( uint16_t CoordiX, uint16_t CoordiY, uint16_t Width, uint16
 /*====================================================================================================*
 **函數 : LCD_PutChar
 **功能 : Put Char
-**輸入 : CoordiX, CoordiY, ChWord, FontColor, BackColor
+**輸入 : coordiX, coordiY, chWord, fontColor, backColor
 **輸出 : None
 **使用 : LCD_PutChar(x, y, 'C', WHITE, BLACK)
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_PutChar( uint16_t CoordiX, uint16_t CoordiY, char *ChWord, uint16_t FontColor, uint16_t BackColor )
+void LCD_PutChar( uint16_t coordiX, uint16_t coordiY, char *chWord, uint16_t fontColor, uint16_t backColor )
 {
-  uint8_t Tmp_Char = 0;
+  uint8_t tmpChar = 0;
   uint16_t i = 0, j = 0;
 
   for(i = 0; i < 16; i++) {
-    Tmp_Char = ASCII_16x8[*ChWord-32][i];
+    tmpChar = ASCII_16x8[*chWord - 32][i];
     for(j = 0; j < 8; j++) {
-      if(((Tmp_Char >> (7 - j)) & 0x01) == 0x01)
-        LCD_DrawPixel(CoordiX+j, CoordiY+i, FontColor); // 字符顏色
+      if(((tmpChar >> (7 - j)) & 0x01) == 0x01)
+        LCD_DrawPixel(coordiX + j, coordiY + i, fontColor);
       else
-        LCD_DrawPixel(CoordiX+j, CoordiY+i, BackColor); // 背景顏色
+        LCD_DrawPixel(coordiX + j, coordiY + i, backColor);
     }
   }
 }
@@ -640,36 +636,36 @@ void LCD_PutChar( uint16_t CoordiX, uint16_t CoordiY, char *ChWord, uint16_t Fon
 /*====================================================================================================*
 **函數 : LCD_PutStr
 **功能 : Put String
-**輸入 : CoordiX, CoordiY, ChWord, FontStyle, FontColor, BackColor
+**輸入 : coordiX, coordiY, chWord, fontColor, backColor
 **輸出 : None
-**使用 : LCD_PutStr(10, 10, (int8_t*)"TFT LCD TEST ... ", WHITE, BLACK);
+**使用 : LCD_PutStr(10, 10, "TFT LCD TEST ... ", WHITE, BLACK);
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_PutStr( uint16_t CoordiX, uint16_t CoordiY, char *ChWord, uint16_t FontColor, uint16_t BackColor )
+void LCD_PutStr( uint16_t coordiX, uint16_t coordiY, char *chWord, uint16_t fontColor, uint16_t backColor )
 {
-  uint16_t OffsetX = 0;
+  uint16_t offsetX = 0;
 
-  while(*ChWord) {
-    LCD_PutChar(CoordiX+OffsetX, CoordiY, ChWord, FontColor, BackColor);
-    ChWord++;
-    OffsetX += 8;
+  while(*chWord) {
+    LCD_PutChar(coordiX + offsetX, coordiY, chWord, fontColor, backColor);
+    chWord++;
+    offsetX += 8;
   }
 }
 /*====================================================================================================*/
 /*====================================================================================================*
 **函數 : LCD_PutNum
 **功能 : Put Number
-**輸入 : oordiX, CoordiY, Type, Length, NumData, FontColor, BackColor
+**輸入 : oordiX, coordiY, type, length, numData, fontColor, backColor
 **輸出 : None
-**使用 : LCD_PutNum(CoordiX, CoordiY, Type_D, Length, NumData, WHITE, BLACK)
+**使用 : LCD_PutNum(coordiX, coordiY, Type_D, length, number, WHITE, BLACK)
 **====================================================================================================*/
 /*====================================================================================================*/
-void LCD_PutNum( uint16_t CoordiX, uint16_t CoordiY, StrType Type, uint8_t Length, uint32_t NumData, uint16_t FontColor, uint16_t BackColor )
+void LCD_PutNum( uint16_t coordiX, uint16_t coordiY, StringType type, uint8_t length, uint32_t number, uint16_t fontColor, uint16_t backColor )
 {
-  char TmpNumber[16] = {0};
+  char tmpStr[16] = {0};
 
-  Str_NumToChar(Type, Length, TmpNumber, NumData);
-  LCD_PutStr(CoordiX, CoordiY, TmpNumber, FontColor, BackColor);
+  num2Str(type, length, tmpStr, number);
+  LCD_PutStr(coordiX, coordiY, tmpStr, fontColor, backColor);
 }
 /*====================================================================================================*/
 /*====================================================================================================*
@@ -680,10 +676,11 @@ void LCD_PutNum( uint16_t CoordiX, uint16_t CoordiY, StrType Type, uint8_t Lengt
 **使用 : LCD_TestColoBar();
 **====================================================================================================*/
 /*====================================================================================================*/
+#define COLOR_TYPE 20
 void LCD_TestColoBar( void )
 {
   uint32_t i = 0, j = 0;
-  uint16_t drawColor[20] = {
+  uint16_t drawColor[COLOR_TYPE] = {
     WHITE,
     RED,
     GREEN,
@@ -706,10 +703,10 @@ void LCD_TestColoBar( void )
     LBBLUE
   };
 
-  LCD_SetWindow(0, 0, LCD_W-1, LCD_H-1);
+  LCD_SetWindow(0, 0, LCD_W - 1, LCD_H - 1);
 
   for(i = 0; i < 20; i++) {
-    j = 16 * LCD_W;
+    j = (LCD_H / 20) * LCD_W;
     while(j--)
       LCD_WriteColor(drawColor[i]);
   }
