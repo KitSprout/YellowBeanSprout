@@ -26,8 +26,6 @@ Hardware
 
 Software
 ========
-BSY_FreeRTOS_Peripheral_GPIO
-
 * [BSY_ModuleHAL_MPU9250-SPI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_MPU9250-SPI) ... MPU9250 SPI 讀取範例
 * [BSY_ModuleHAL_MPU9255-SPI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_MPU9255-SPI) ... MPU9255 SPI 讀取範例
 * [BSY_ModuleHAL_TFT2.2](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_TFT2.2) ... [TFT2.2-inch](https://github.com/KitSprout/TFT_2.2-inch) 範例
