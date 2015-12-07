@@ -2,7 +2,7 @@
 ========
 * Author  : [Hom](https://github.com/Hom-Wang)
 * Version : v1.2
-* Update  : 2015/11/28
+* Update  : 2015/12/07
 
 Description
 ========
@@ -26,16 +26,24 @@ Hardware
 
 Software
 ========
+BSY_FreeRTOS_Peripheral_GPIO
+
 * [BSY_ModuleHAL_MPU9250-SPI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_MPU9250-SPI) ... MPU9250 SPI 讀取範例
 * [BSY_ModuleHAL_MPU9255-SPI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_MPU9255-SPI) ... MPU9255 SPI 讀取範例
 * [BSY_ModuleHAL_TFT2.2](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_TFT2.2) ... [TFT2.2-inch](https://github.com/KitSprout/TFT_2.2-inch) 範例
+* [BSY_ModuleHAL_TFT2.2-WF](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_ModuleHAL_TFT2.2-WF) ... [TFT2.2-inch](https://github.com/KitSprout/TFT_2.2-inch) 示波器範例
+* [BSY_PeripheralHAL_ADC](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_ADC) ... ADC 讀取範例
+* [BSY_PeripheralHAL_DAC](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_DAC) ... DAC 輸出範例
 * [BSY_PeripheralHAL_CRC](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_CRC) ... CRC32 範例
 * [BSY_PeripheralHAL_EXTI](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_EXTI) ... EXIT 外部中斷範例
 * [BSY_PeripheralHAL_FLASH](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_FLASH) ... FLASH 讀寫範例
 * [BSY_PeripheralHAL_GPIO](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_GPIO) ... GPIO 輸入輸出範例
+* [BSY_PeripheralHAL_PWR](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_PWR) ... 睡眠範例
 * [BSY_PeripheralHAL_TIM](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_TIM) ... TIM-Base 計時中斷範例
+* [BSY_PeripheralHAL_TIM-PWM](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_TIM-PWM) ... TIM-PWM 輸出範例
 * [BSY_PeripheralHAL_UART](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_UART) ... UART 傳輸範例
 * [BSY_PeripheralHAL_UART-IntRecv](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_PeripheralHAL_UART-IntRecv) ... UART 中斷範例
+* [BSY_FreeRTOS_Peripheral_GPIO](https://github.com/KitSprout/YellowBeanSprout/tree/master/Software/BSY_FreeRTOS_Peripheral_GPIO) ... FreeRTOS GPIO 範例
 
 Related Documents
 ========
